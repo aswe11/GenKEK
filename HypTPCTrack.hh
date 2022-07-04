@@ -1,3 +1,4 @@
+//  Authors: Wooseung Jung
 
 #ifndef HYPTPCTRACK_HH
 #define HYPTPCTRACK_HH
@@ -11,13 +12,31 @@
 #include <vector>
 #include <iostream>
 
-//GenFit
+//GenKEK
+#include "HypTPCSpacepointMeasurement.hh"
+#include "HypTPCFitter.hh"
+#include "HypTPCFitProcess.hh"
 
+//k18-analyzer
+#include "TPCLocalTrackHelix.hh"
+#include "TPCLocalTrack.hh"
+
+//GenFit
+#include <AbsMeasurement.h>
+#include <Track.h>
+#include <MeasurementFactory.h>
+#include <MeasurementProducer.h>
+
+//ROOT
+#include <TClonesArray.h>
 //class AbsTrackRep;
 //class MeasuredStateOnPlane;
 //class Track;
 
-class HypTPCTrack : HypTPCFitter{
+//class HypTPCFitter;
+//class HypTPCFitProcess;
+
+class HypTPCTrack: public HypTPCFitter, public HypTPCFitProcess{
 
 public:
 
@@ -26,20 +45,36 @@ public:
   void Init();
   void AddHelixTrack(int pdg, TPCLocalTrackHelix *tp);
 
-  genfit::Track* getTrack(int ith) { return (genfit::Track*) _hitClusterArray -> ConstructedAt(ith); }
 
+  genfit::Track* GetTrack(int ith){ return (genfit::Track*) _genfitTrackArray -> ConstructedAt(ith); }
+
+  /*!
+   * Verbose control:
+   * -1: Silent, 0: Minimum
+   * 1: Errors only, 2: Errors and Warnings
+   * 3: Verbose mode, long term debugging (default)
+   */
+  int Get_verbosity() const override;
+  void Set_verbosity(int v) override;
+  void FitTracks() override;
+  //Process all AbsTrackReps.
+  bool ProcessTrack(genfit::Track* Track) override;
+  bool FitCheck(genfit::Track* fittedTrack) override; //check fitstatus of CardinalRep
+  //Process Track with one AbsTrackRep of the Track
+  bool ProcessTrack(genfit::Track* Track, genfit::AbsTrackRep* rep) override;
+  bool FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep) override;
+
+  static TClonesArray *_hitClusterArray;
+  static TClonesArray *_genfitTrackArray;
 
 private:
 
   int TPCDetID=0;
-  TClonesArray *_hitClusterArray;
-  TClonesArray *_genfitTrackArray;
   genfit::MeasurementFactory<genfit::AbsMeasurement> *_measurementFactory;
   genfit::MeasurementProducer<TPCLTrackHit, HypTPCSpacepointMeasurement> *_measurementProducer;
-
-  //std::vector<unsigned int> _clusterIDs;
-  //unsigned int _vertex_id;
 
   ClassDef(HypTPCTrack, 1)
 
 }; //class HypTPCTrack.hh
+
+#endif // HypTPCTrack_hh

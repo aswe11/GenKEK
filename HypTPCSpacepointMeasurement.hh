@@ -1,20 +1,18 @@
-/** @brief Example class for a spacepoint measurement which can be created
- * from mySpacepointDetectorHit via the MeasurementFactory.
- *
- *  @author Johannes Rauch  (Technische Universit&auml;t M&uuml;nchen, original author)
- *
- */
-//  Rearranged by: Wooseung Jung
+//  Authors: Wooseung Jung
 
 #ifndef HYPTPCSPACEPOINTMEASUREMENT_HH
 #define HYPTPCSPACEPOINTMEASUREMENT_HH
 
+//GenFit2
+#include <SpacepointMeasurement.h>
+#include <TrackCandHit.h>
+
 //k18-analyzer
-//#include "TPCLTrackHit.hh"
+#include "TPCLTrackHit.hh"
 
-class TVector3;
+//class TVector3;
 
-class HypTPCSpacepointMeasurement : public genfit::SpacepointMeasurement {
+class HypTPCSpacepointMeasurement : public genfit::SpacepointMeasurement{
 
 public:
   HypTPCSpacepointMeasurement() : genfit::SpacepointMeasurement() {}
@@ -29,4 +27,4 @@ private:
   ClassDef(HypTPCSpacepointMeasurement,1)
 };
 
-#endif // genfit_HypTPCSpacepointMeasurement_hh
+#endif // HypTPCSpacepointMeasurement_hh

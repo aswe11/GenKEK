@@ -1,25 +1,24 @@
 //  Authors: Wooseung Jung
 
-//GenKEK
 #include "HypTPCFitter.hh"
 #include "HypTPCField.hh"
+/*
+//GenKEK
+
+#include "HypTPCField.hh"
 #include "HypTPCTrack.hh"
+*/
 
-//ROOT
-#include <TGeoManager.h>
-#include <RVersion.h>                      // for ROOT_VERSION, ROOT_VERSION...
-
-//GenFit2
+//GenFit
+#include <KalmanFitterRefTrack.h>
 #include <KalmanFitter.h>
 #include <KalmanFitterRefTrack.h>
-#include <AbsKalmanFitter.h>
 #include <DAF.h>
 #include <FieldManager.h>
 #include <FitStatus.h>
 #include <MaterialEffects.h>
 #include <TGeoMaterialInterface.h>
 #include <Track.h>
-#include <Exception.h>
 
 //k18-analyzer
 #include <UserParamMan.hh>
@@ -36,8 +35,10 @@ namespace{ const auto& gUser = UserParamMan::GetInstance(); }
 
 ClassImp(HypTPCFitter)
 
+genfit::AbsKalmanFitter* _fitter = nullptr;
+int HypTPCFitter::GenFitFitter = -1;
+
 HypTPCFitter::HypTPCFitter(const std::string& tgeo_file_name, const bool m_is_const)
-: verbosity(3),GenFitFitter(-1)
 {
   _tgeo_manager = new TGeoManager("Geometry", "HypTPC geometry");
   TGeoManager::Import(tgeo_file_name.data());
@@ -45,9 +46,9 @@ HypTPCFitter::HypTPCFitter(const std::string& tgeo_file_name, const bool m_is_co
   genfit::FieldManager::getInstance()->init(new HypTPCField(m_is_const));
   genfit::MaterialEffects::getInstance()->init(new genfit::TGeoMaterialInterface());
 
-  const int GenFitFitter = gUser.GetParameter("Fitter");
-  const unsigned int MinIter = gUser.GetParameter("nIteration",0);
-  const unsigned int MaxIter = gUser.GetParameter("nIteration",1);
+  GenFitFitter = gUser.GetParameter("Fitter");
+  unsigned int MinIter = gUser.GetParameter("nIteration",0);
+  unsigned int MaxIter = gUser.GetParameter("nIteration",1);
 
   // init fitter
   if(GenFitFitter==0) _fitter = new genfit::KalmanFitterRefTrack();
@@ -61,7 +62,8 @@ HypTPCFitter::HypTPCFitter(const std::string& tgeo_file_name, const bool m_is_co
   genfit::Exception::quiet(true);
 }
 
-HypTPCFitter* HypTPCFitter::GetInstance(const std::string& tgeo_file_name, const bool m_is_const = false, const std::string& track_rep_choice){
+inline genfit::AbsKalmanFitter* HypTPCFitter::GetFitter(){
 
-  return new HypTPCFitter(tgeo_file_name, m_is_const);
+  return _fitter;
+
 }

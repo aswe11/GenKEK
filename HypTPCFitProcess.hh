@@ -4,27 +4,41 @@
 #define HYPTPCFITPROCESS_HH
 
 //GenKEK
-//#include "HypTPCTrack.hh"
+//#include "HypTPCFitter.hh"
 
-//GenFit2
-//#include <Exception.h>
+//GenFit
+#include <Track.h>
+#include <AbsTrackRep.h>
+#include <Exception.h>
 
-#include <string>
-
-class HypTPCFitProcess : HypTPCTrack{
+class HypTPCFitProcess{
 
 public:
 
-  HypTPCFitProcess(){}
+  HypTPCFitProcess(): verbosity(3){}
   ~HypTPCFitProcess(){}
   HypTPCFitProcess* GetInstance(){ return new HypTPCFitProcess(); }
-  void FitTracks();
-  bool FitCheck(genfit::Track* fittedTrack);
-  bool ProcessTrack(genfit::Track* fitTrack);
-  bool ProcessTrack(HypTPCTrack* track, AbsTrackRep* rep);
+
+  virtual int Get_verbosity() const { return verbosity; }
+  virtual void Set_verbosity(int v){
+    this->verbosity = v;
+    if(verbosity >= 1) genfit::Exception::quiet(false);
+    else genfit::Exception::quiet(true);
+  }
+
+  virtual void FitTracks();
+
+  //Process all AbsTrackReps.
+  virtual bool ProcessTrack(genfit::Track* Track);
+  virtual bool FitCheck(genfit::Track* fittedTrack); //check fitstatus of CardinalRep
+
+  //Process Track with one AbsTrackRep of the Track
+  virtual bool ProcessTrack(genfit::Track* Track, genfit::AbsTrackRep* rep);
+  virtual bool FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep);
 
 private:
 
+  int verbosity;
   ClassDef(HypTPCFitProcess, 1)
 
 };  //class HypTPCFitProcess

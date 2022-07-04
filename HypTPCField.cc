@@ -1,18 +1,12 @@
 //  Authors: Wooseung Jung
 
-//GenFit2
-#include <AbsBField.h>
-
 //GenKEK
-#include "HypTPCField.h"
+#include "HypTPCField.hh"
 
 //k18-analyzer
 #include "ConfMan.hh"
 #include "FieldMan.hh"
 #include "ThreeVector.hh"
-
-//ROOT
-#include <TVector3.h>
 
 using namespace std;
 
@@ -27,10 +21,10 @@ namespace{
 
 ClassImp(HypTPCField)
 
-HypTPCField::HypTPCField(bool is_constant_field=false)
+HypTPCField::HypTPCField(bool is_constant_field)
 : genfit::AbsBField(),
   m_is_const(is_constant_field),
-  const_field(HS_field_0*HS_field_Hall/HS_field_Hall_calc)
+  const_field(HS_field_0*valueHSHall/valueHSCalc)
 {}
 
 /* Getter for the magnetic field.
@@ -41,7 +35,7 @@ HypTPCField::HypTPCField(bool is_constant_field=false)
 
 TVector3 HypTPCField::get(const TVector3& position) const{
   TVector3 B;
-  if(is_constant_field) B = ThreeVector(0.,0.,const_field);
+  if(m_is_const) B = ThreeVector(0.,0.,const_field);
   else B = gField.GetField(position);
 
   return B;

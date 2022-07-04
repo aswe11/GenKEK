@@ -3,6 +3,12 @@
 #ifndef HYPTPCFIELD_HH
 #define HYPTPCFIELD_HH
 
+//GenFit
+#include <AbsBField.h>
+
+//ROOT
+#include <TVector3.h>
+
 class HypTPCField : public genfit::AbsBField
 {
 public:
@@ -21,4 +27,4 @@ private:
   ClassDef(HypTPCField, 1)
 }; //class HypTPCField
 
-#endif // genfit_HypTPCField_hh
+#endif // HypTPCField_hh
