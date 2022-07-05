@@ -36,9 +36,8 @@ ClassImp(HypTPCTrack)
 TClonesArray *_hitClusterArray = nullptr;;
 TClonesArray *_genfitTrackArray = nullptr;
 
-HypTPCTrack::HypTPCTrack()
-  : HypTPCFitProcess()
-{
+HypTPCTrack::HypTPCTrack(){
+
   _hitClusterArray = new TClonesArray("TPCLTrackHit");
   _genfitTrackArray = new TClonesArray("genfit::Track");
 

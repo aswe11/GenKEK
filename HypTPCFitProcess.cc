@@ -4,20 +4,7 @@
 #include "HypTPCFitter.hh"
 #include "HypTPCFitProcess.hh"
 
-//GenFit2
-//#include <KalmanFitter.h>
-//#include <KalmanFitterRefTrack.h>
-//#include <AbsKalmanFitter.h>
-//#include <DAF.h>
-//#include <FieldManager.h>
-//#include <MaterialEffects.h>
-//#include <TGeoMaterialInterface.h>
-//#include <FitStatus.h>
-
-//k18-analyzer
-
 //STL
-#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -54,33 +41,12 @@ bool HypTPCFitProcess::FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep*
 
 }
 
-bool HypTPCFitProcess::FitCheck(genfit::Track* fittedTrack){
-
-  if(!fittedTrack->getFitStatus()->isFitted()){
-    if (verbosity >= 2) LogWARNING("Fitting is failed");
-    return false;
-  }
-  if(!fittedTrack->getFitStatus()->isFitConverged()){
-    if (verbosity >= 2) LogWARNING("Fit is not converged");
-    return false;
-  }
-  try{fittedTrack->checkConsistency();}
-  catch(genfit::Exception& e){
-    if(verbosity >= 2){
-      std::cerr << "genfit::Track::checkConsistency() failed!" << std::endl;
-      std::cerr << e.what();
-    }
-    return false;
-  }
-  return true;
-
-}
-
 void HypTPCFitProcess::FitTracks(){
 
-  int nTracks = HypTPCTrack::_genfitTrackArray -> GetEntriesFast();
+  int nTracks = GetNTrack();
   for(int i=0; i<nTracks; i++){
-    ProcessTrack((genfit::Track*) HypTPCTrack::_genfitTrackArray -> ConstructedAt(i));
+    //ProcessTrack((genfit::Track*) _genfitTrackArray -> ConstructedAt(i));
+    ProcessTrack(GetTrack(i));
   }
 
 }
