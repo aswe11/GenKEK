@@ -3,18 +3,8 @@
 #ifndef HYPTPCTRACK_HH
 #define HYPTPCTRACK_HH
 
-#include <TMatrixDSymfwd.h>
-#include <TVector3.h>
-
-//STL
-#include <map>
-#include <memory>
-#include <vector>
-#include <iostream>
-
 //GenKEK
 #include "HypTPCSpacepointMeasurement.hh"
-#include "HypTPCFitter.hh"
 #include "HypTPCFitProcess.hh"
 
 //k18-analyzer
@@ -29,14 +19,8 @@
 
 //ROOT
 #include <TClonesArray.h>
-//class AbsTrackRep;
-//class MeasuredStateOnPlane;
-//class Track;
 
-//class HypTPCFitter;
-//class HypTPCFitProcess;
-
-class HypTPCTrack: public HypTPCFitter, public HypTPCFitProcess{
+class HypTPCTrack: public HypTPCFitProcess{
 
 public:
 
@@ -44,7 +28,6 @@ public:
   HypTPCTrack* getInstance(){ return new HypTPCTrack(); }
   void Init();
   void AddHelixTrack(int pdg, TPCLocalTrackHelix *tp);
-
 
   genfit::Track* GetTrack(int ith){ return (genfit::Track*) _genfitTrackArray -> ConstructedAt(ith); }
 

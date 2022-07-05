@@ -3,9 +3,6 @@
 #ifndef HYPTPCFITPROCESS_HH
 #define HYPTPCFITPROCESS_HH
 
-//GenKEK
-//#include "HypTPCFitter.hh"
-
 //GenFit
 #include <Track.h>
 #include <AbsTrackRep.h>
@@ -16,7 +13,7 @@ class HypTPCFitProcess{
 public:
 
   HypTPCFitProcess(): verbosity(3){}
-  ~HypTPCFitProcess(){}
+  virtual ~HypTPCFitProcess(){}
   HypTPCFitProcess* GetInstance(){ return new HypTPCFitProcess(); }
 
   virtual int Get_verbosity() const { return verbosity; }

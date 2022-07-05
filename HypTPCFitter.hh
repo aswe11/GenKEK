@@ -23,11 +23,8 @@ class HypTPCFitter{
 
 public:
 
-  HypTPCFitter(const std::string& tgeo_file_name,const bool m_is_const=false);
-  HypTPCFitter(){};
+  HypTPCFitter(const std::string& tgeo_file_name, const bool m_is_const=false);
   ~HypTPCFitter(){ delete _fitter; }
-  static genfit::AbsKalmanFitter* GetFitter();
-
   /*!
    * Fitter control:
    * default & 0: KalmanFitterRefTrack()
@@ -35,7 +32,7 @@ public:
    * 2: genfit::DAF(true) : DafRef
    * 3: genfit::DAF(false) : DafSimple
    */
-
+  static genfit::AbsKalmanFitter* GetFitter();
   static int GenFitFitter;
   static genfit::AbsKalmanFitter* _fitter;
 

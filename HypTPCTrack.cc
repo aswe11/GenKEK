@@ -28,15 +28,17 @@
 #include <TVector3.h>                         // for TVector3
 #include <TVectorT.h>                         // for TVectorT, operator-
 
+//STL
+#include <iostream>
+
 ClassImp(HypTPCTrack)
 
 TClonesArray *_hitClusterArray = nullptr;;
 TClonesArray *_genfitTrackArray = nullptr;
 
 HypTPCTrack::HypTPCTrack()
-  : HypTPCFitter(), HypTPCFitProcess()
+  : HypTPCFitProcess()
 {
-
   _hitClusterArray = new TClonesArray("TPCLTrackHit");
   _genfitTrackArray = new TClonesArray("genfit::Track");
 
@@ -57,7 +59,8 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
 
   int nMeasurement = tp -> GetNHit();
   for(int i=0; i<nMeasurement; i++){
-    new ((*_hitClusterArray)[i]) (TPCLTrackHit *)tp -> GetHit(i);
+    TPCLTrackHit *point = tp -> GetHit(i);
+    new ((*_hitClusterArray)[i]) TPCLTrackHit(*point);
     trackCand.addHit(TPCDetID, i);
   }
 

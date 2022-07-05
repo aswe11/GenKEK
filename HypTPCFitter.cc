@@ -1,13 +1,8 @@
 //  Authors: Wooseung Jung
 
+//GenKEK
 #include "HypTPCFitter.hh"
 #include "HypTPCField.hh"
-/*
-//GenKEK
-
-#include "HypTPCField.hh"
-#include "HypTPCTrack.hh"
-*/
 
 //GenFit
 #include <KalmanFitterRefTrack.h>
@@ -23,7 +18,6 @@
 //k18-analyzer
 #include <UserParamMan.hh>
 
-#include <cassert>
 #include <cstddef>
 #include <iostream>
 
