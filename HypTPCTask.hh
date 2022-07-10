@@ -51,7 +51,7 @@ public:
   */
 private:
 
-  //ClassDef(HypTPCTask, 1)
+  ClassDef(HypTPCTask, 1)
 
 };  //class HypTPCTask
 

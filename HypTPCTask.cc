@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string>
 
-//ClassImp(HypTPCTask)
+ClassImp(HypTPCTask)
 
 namespace{
   const double qnan = TMath::QuietNaN();

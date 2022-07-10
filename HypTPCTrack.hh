@@ -5,10 +5,12 @@
 
 //GenKEK
 #include "HypTPCSpacepointMeasurement.hh"
+#include "HypTPCHit.hh"
 
 //k18-analyzer
 #include "TPCLocalTrackHelix.hh"
 #include "TPCLocalTrack.hh"
+#include "TPCLTrackHit.hh"
 
 //GenFit
 #include <AbsMeasurement.h>
@@ -32,16 +34,18 @@ public:
 
 protected:
 
-private:
-
   static TClonesArray *_hitClusterArray;
   static TClonesArray *_genfitTrackArray;
+  //TClonesArray *_hitClusterArray;
+  //TClonesArray *_genfitTrackArray;
+
+private:
 
   int TPCDetID=0;
   genfit::MeasurementFactory<genfit::AbsMeasurement> *_measurementFactory;
-  genfit::MeasurementProducer<TPCLTrackHit, HypTPCSpacepointMeasurement> *_measurementProducer;
+  genfit::MeasurementProducer<HypTPCHit, genfit::HypTPCSpacepointMeasurement> *_measurementProducer;
 
-  //ClassDef(HypTPCTrack, 1)
+  ClassDef(HypTPCTrack, 1)
 
 }; //class HypTPCTrack.hh
 

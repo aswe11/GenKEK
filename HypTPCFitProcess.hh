@@ -51,7 +51,7 @@ private:
 
   int verbosity;
 
-  //ClassDef(HypTPCFitProcess, 1)
+  ClassDef(HypTPCFitProcess, 1)
 
 };  //class HypTPCFitProcess
 

@@ -3,6 +3,9 @@
 //GenKEK
 #include "HypTPCTrack.hh"
 
+//k18-analyzer
+#include "TPCLTrackHit.hh"
+
 //GenFit
 #include <AbsFitterInfo.h>
 #include <AbsHMatrix.h>
@@ -31,25 +34,34 @@
 //STL
 #include <iostream>
 
-//ClassImp(HypTPCTrack)
+ClassImp(HypTPCTrack)
 
 TClonesArray *HypTPCTrack::_hitClusterArray = nullptr;
 TClonesArray *HypTPCTrack::_genfitTrackArray = nullptr;
+//TClonesArray *HypTPCTrack::_hitClusterArray = new TClonesArray("TPCLTrackHit");
+//TClonesArray *HypTPCTrack::_genfitTrackArray = new TClonesArray("genfit::Track");
 
 HypTPCTrack::HypTPCTrack(){
 
-  _hitClusterArray = new TClonesArray("TPCLTrackHit");
+  std::cout<<"Hyptpctrack Constructor"<<std::endl;
+  _hitClusterArray = new TClonesArray("HypTPCHit");
+  std::cout<<"Hyptpctrack Constructor---1"<<std::endl;
   _genfitTrackArray = new TClonesArray("genfit::Track");
+  std::cout<<"Hyptpctrack Constructor---2"<<std::endl;
 
-  _measurementProducer = new genfit::MeasurementProducer<TPCLTrackHit, HypTPCSpacepointMeasurement>(_hitClusterArray);
+  _measurementProducer = new genfit::MeasurementProducer<HypTPCHit, genfit::HypTPCSpacepointMeasurement>(_hitClusterArray);
   _measurementFactory = new genfit::MeasurementFactory<genfit::AbsMeasurement>();
   _measurementFactory -> addProducer(TPCDetID, _measurementProducer);
+
   std::cout<<"Measurementfactory is constructed"<<std::endl;
 }
 
 void HypTPCTrack::Init(){
-  _hitClusterArray -> Delete();
+  std::cout<<"init1"<<std::endl;
   _genfitTrackArray -> Delete();
+  std::cout<<"init2"<<std::endl;
+  _hitClusterArray -> Delete();
+  std::cout<<"init3"<<std::endl;
 }
 
 void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
@@ -60,7 +72,7 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
   int nMeasurement = tp -> GetNHit();
   for(int i=0; i<nMeasurement; i++){
     TPCLTrackHit *point = tp -> GetHit(i);
-    new ((*_hitClusterArray)[i]) TPCLTrackHit(*point);
+    new ((*_hitClusterArray)[i]) HypTPCHit(*point);
     trackCand.addHit(TPCDetID, i);
   }
 

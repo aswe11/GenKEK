@@ -27,7 +27,7 @@
 
 namespace{ const auto& gUser = UserParamMan::GetInstance(); }
 
-//ClassImp(HypTPCFitter)
+ClassImp(HypTPCFitter)
 
 genfit::AbsKalmanFitter* HypTPCFitter::_fitter = nullptr;
 int HypTPCFitter::GenFitFitter = -1;

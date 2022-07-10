@@ -9,23 +9,27 @@
 
 //k18-analyzer
 #include "TPCLTrackHit.hh"
+#include "HypTPCHit.hh"
 
 //class TVector3;
 
-class HypTPCSpacepointMeasurement : public genfit::SpacepointMeasurement{
+namespace genfit {
 
-public:
-  HypTPCSpacepointMeasurement() : genfit::SpacepointMeasurement() {}
-  HypTPCSpacepointMeasurement(const TPCLTrackHit* dethit, const genfit::TrackCandHit* hit); //TPCHit Hitpos & Resolution
-  ~HypTPCSpacepointMeasurement() override {};
+  class HypTPCSpacepointMeasurement : public SpacepointMeasurement{
 
-  virtual HypTPCSpacepointMeasurement* clone() const { return new HypTPCSpacepointMeasurement(*this); }
-  double GetCharge() { return fCharge; }
+  public:
+    HypTPCSpacepointMeasurement() : SpacepointMeasurement() {std::cout<<"constructor1"<<std::endl;}
+    HypTPCSpacepointMeasurement(const HypTPCHit* dethit, const TrackCandHit* hit); //TPCHit Hitpos & Resolution
+    ~HypTPCSpacepointMeasurement(){}
 
-private:
-  double fCharge;
+    virtual AbsMeasurement* clone() const { return new HypTPCSpacepointMeasurement(*this); }
+    double GetCharge() { return fCharge; }
 
-  //ClassDef(HypTPCSpacepointMeasurement,1)
-};
+  private:
+    double fCharge;
 
+    ClassDef(HypTPCSpacepointMeasurement,1)
+  };
+
+} /* End of namespace genfit */
 #endif // HypTPCSpacepointMeasurement_hh
