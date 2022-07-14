@@ -21,6 +21,8 @@
 //ROOT
 #include <TClonesArray.h>
 
+//STL
+#include <vector>
 class HypTPCTrack{
 
 public:
@@ -28,16 +30,17 @@ public:
   HypTPCTrack();
   virtual ~HypTPCTrack(){}
   void Init();
+  genfit::Track* GetTrack(int ith) const;
+  void AddReps(int ith, int pdg);
   void AddHelixTrack(int pdg, TPCLocalTrackHelix *tp);
-  genfit::Track* GetTrack(int ith) const { return (genfit::Track*) _genfitTrackArray -> ConstructedAt(ith); }
+  void AddHelixTrack(std::vector<int> pdg, TPCLocalTrackHelix *tp);
   int GetNTrack() const { return _genfitTrackArray -> GetEntriesFast(); }
+  int GetNHit(int ith) const;
 
 protected:
 
   static TClonesArray *_hitClusterArray;
   static TClonesArray *_genfitTrackArray;
-  //TClonesArray *_hitClusterArray;
-  //TClonesArray *_genfitTrackArray;
 
 private:
 

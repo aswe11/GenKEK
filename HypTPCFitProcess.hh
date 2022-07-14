@@ -16,7 +16,6 @@ class HypTPCFitProcess : public HypTPCTrack{
 public:
 
   HypTPCFitProcess(): HypTPCTrack(), verbosity(3){}
-  //HypTPCFitProcess(): verbosity(3){}
   virtual ~HypTPCFitProcess(){}
   /*!
    * Verbose control:
@@ -31,21 +30,15 @@ public:
     else genfit::Exception::quiet(true);
   }
 
-  bool FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep=nullptr);
+  bool FitCheck(int trackid) const;
+  bool FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep=nullptr) const;
+
   //Process track with the all AbsTrackReps of the track.
   bool ProcessTrack(genfit::Track* Track);
   //Process track with one AbsTrackRep of the Track
   bool ProcessTrack(genfit::Track* Track, genfit::AbsTrackRep* rep);
   //Process all tracks with its all AbsTrackReps.
   void FitTracks();
-
-  //HypTPCTrack.hh
-  /*
-  void Init();
-  void AddHelixTrack(int pdg, TPCLocalTrackHelix *tp);
-  genfit::Track* GetTrack(int ith) const;
-  int GetNTrack() const;
-  */
 
 private:
 

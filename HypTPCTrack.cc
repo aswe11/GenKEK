@@ -2,6 +2,7 @@
 
 //GenKEK
 #include "HypTPCTrack.hh"
+#include "HypTPCHit.hh"
 
 //k18-analyzer
 #include "TPCLTrackHit.hh"
@@ -38,30 +39,36 @@ ClassImp(HypTPCTrack)
 
 TClonesArray *HypTPCTrack::_hitClusterArray = nullptr;
 TClonesArray *HypTPCTrack::_genfitTrackArray = nullptr;
-//TClonesArray *HypTPCTrack::_hitClusterArray = new TClonesArray("TPCLTrackHit");
-//TClonesArray *HypTPCTrack::_genfitTrackArray = new TClonesArray("genfit::Track");
 
 HypTPCTrack::HypTPCTrack(){
 
-  std::cout<<"Hyptpctrack Constructor"<<std::endl;
   _hitClusterArray = new TClonesArray("HypTPCHit");
-  std::cout<<"Hyptpctrack Constructor---1"<<std::endl;
   _genfitTrackArray = new TClonesArray("genfit::Track");
-  std::cout<<"Hyptpctrack Constructor---2"<<std::endl;
-
   _measurementProducer = new genfit::MeasurementProducer<HypTPCHit, genfit::HypTPCSpacepointMeasurement>(_hitClusterArray);
   _measurementFactory = new genfit::MeasurementFactory<genfit::AbsMeasurement>();
   _measurementFactory -> addProducer(TPCDetID, _measurementProducer);
+  std::cout<<"GenFit : HypTPCTrack container is ready"<<std::endl;
 
-  std::cout<<"Measurementfactory is constructed"<<std::endl;
 }
 
 void HypTPCTrack::Init(){
-  std::cout<<"init1"<<std::endl;
+
   _genfitTrackArray -> Delete();
-  std::cout<<"init2"<<std::endl;
   _hitClusterArray -> Delete();
-  std::cout<<"init3"<<std::endl;
+
+}
+
+genfit::Track* HypTPCTrack::GetTrack(int ith) const {
+
+  return (genfit::Track*) _genfitTrackArray -> ConstructedAt(ith);
+
+}
+
+void HypTPCTrack::AddReps(int ith, int pdg){
+
+  genfit::Track* tr = GetTrack(ith);
+  tr -> addTrackRep(new genfit::RKTrackRep(pdg));
+
 }
 
 void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
@@ -76,27 +83,52 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
     trackCand.addHit(TPCDetID, i);
   }
 
-  //GenFit Units : GeV/c, cm, kGauss
+  //GenFit Units : GeV/c, ns, cm, kGauss
+  //K1.8Ana Units : GeV/c, ns, mm, T
   const TVector3& res_vect = tp -> GetHit(0) -> GetResolutionVect();
   TMatrixDSym covSeed(6);
   covSeed.Zero();
+  /*
+  covSeed(0, 0) = 0.01;
+  covSeed(1, 1) = 0.01;
+  covSeed(2, 2) = 0.04;
+  for (int iComp = 3; iComp < 6; iComp++) covSeed(iComp, iComp) = covSeed(iComp - 3, iComp - 3);
+  */
   covSeed(0, 0) = res_vect.X() * res_vect.X()/100.;
   covSeed(1, 1) = res_vect.Y() * res_vect.Y()/100.;
   covSeed(2, 2) = res_vect.Z() * res_vect.Z()/100.;
-  for (int iComp = 3; iComp < 6; iComp++)
-    covSeed(iComp, iComp) = covSeed(iComp - 3, iComp - 3)
-      /(3*nMeasurement*nMeasurement);
-  //TVector3& momSeed = tp -> GetHit(0) -> GetMomentumHelix();
-  TVector3 momSeed = tp -> GetHit(0) -> GetMomentumHelix();
-  momSeed.SetMag(momSeed.Mag()/1000.);
-  //TVector3& posSeed = tp -> GetHit(0) -> GetLocalCalPosHelix();
+  for (int iComp = 3; iComp < 6; iComp++) covSeed(iComp, iComp) = covSeed(iComp - 3, iComp - 3)/(3*nMeasurement*nMeasurement);
+
+  TVector3 momSeed = tp -> GetHit(0) -> GetMomentumHelix(); //GeV/c
   TVector3 posSeed = tp -> GetHit(0) -> GetLocalCalPosHelix();
-  posSeed.SetMag(posSeed.Mag()/10.);
+  posSeed.SetMag(posSeed.Mag()/10.); //mm -> cm
   // set start values and pdg to cand
   trackCand.setCovSeed(covSeed);
   trackCand.setPosMomSeedAndPdgCode(posSeed, momSeed, pdg);
+  trackCand.setTimeSeed(0.); //set defualt _time=0.;
+  //covSeed.Print();
   //trackCand.setPosMomSeed(posSeed, momSeed, helixTrack -> Charge());
 
   new ((*_genfitTrackArray)[_genfitTrackArray -> GetEntriesFast()]) genfit::Track(trackCand, *_measurementFactory, new genfit::RKTrackRep(pdg));
+
+}
+
+void HypTPCTrack::AddHelixTrack(std::vector<int> pdg, TPCLocalTrackHelix *tp){
+
+  int Ntracks = GetNTrack();
+  int Nreps = pdg.size();
+  for(int i=0;i<Nreps;i++){
+    int pid = pdg.at(i);
+    if(i==0) AddHelixTrack(pid, tp);
+    else AddReps(Ntracks, pid);
+  }
+
+}
+
+int HypTPCTrack::GetNHit(int ith) const {
+
+  genfit::Track* tr = GetTrack(ith);
+  int num =(int) tr -> getNumPoints();
+  return num;
 
 }

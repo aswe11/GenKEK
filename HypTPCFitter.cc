@@ -31,11 +31,12 @@ ClassImp(HypTPCFitter)
 
 genfit::AbsKalmanFitter* HypTPCFitter::_fitter = nullptr;
 int HypTPCFitter::GenFitFitter = -1;
+TGeoManager *HypTPCFitter::_tgeo_manager =  nullptr;
 
 HypTPCFitter::HypTPCFitter(const std::string& tgeo_file_name, const bool m_is_const)
 {
   _tgeo_manager = new TGeoManager("Geometry", "HypTPC geometry");
-  TGeoManager::Import(tgeo_file_name.data());
+  _tgeo_manager = TGeoManager::Import(tgeo_file_name.data());
 
   genfit::FieldManager::getInstance()->init(new HypTPCField(m_is_const));
   genfit::MaterialEffects::getInstance()->init(new genfit::TGeoMaterialInterface());

@@ -146,6 +146,8 @@ GenFit_k18lib		= -L$(lib_dir) -lGenKEK
 #GenFit_k18lib		+= $(addprefix -l,$(shared_libs:$(lib_dir)/lib%.so=%))
 #GenFit_k18lib		+= $(addprefix -l,$(GenKEK_shared_libs:$(lib_dir)/lib%.so=%))
 #
+GenFit_pcms		= $(bin_dir)/%RootDict_rdict.pcm
+#
 ar	:= ar r
 echo	:= /bin/echo -e
 mkdir	:= mkdir -p
@@ -165,7 +167,7 @@ cyan		= \033[0;36;1m
 white		= \033[0;37;1m
 endif
 #______________________________________________________________________________
-.PHONY: all genkek genfit genfit_dst dst usr lib clean distclean show help showgenkek showgenkek
+.PHONY: all genkek genfit genfit_dst dst usr lib clean distclean show help showgenfit showgenkek
 
 all: k18ana genfit
 k18ana: lib usr dst
@@ -248,7 +250,10 @@ $(GenKEK_lib_objs): $(GenKEK_objs) $(GenFit_objs) $(core_objs) $(GenKEK_build_di
 	@ $(echo) "$(yellow)=== Archiving $@ $(default_color)"
 	@ $(mkdir) $(lib_dir)
 	$(ar) $@ $^
-
+#______________________________________________________________________________
+pcms:
+	@ $(echo) "$(green)=== Copying *rdict.pcm into bin/ $(default_color)"
+	$(cp) $(lib_dir)/*.pcm $(bin_dir)/
 #______________________________________________________________________________
 $(dst_build_dir)/Genfit%.o: $(dst_dir)/Genfit%.cc
 	@ $(echo) "$(green)=== Compiling $@ $(default_color)"
@@ -269,7 +274,7 @@ clean:
 	$(linkdef_deps) $(linkdef_objs) $(linkdef_pcms) \
 	$(GenKEK_linkdef_deps) $(GenKEK_linkdef_objs) \
 	$(GenKEK_linkdef_dicts) $(GenKEK_linkdef_pcms) \
-	$(GenFit_dst_objs) $(GenFit_dst_deps)
+	$(GenFit_dst_objs) $(GenFit_dst_deps) $(GenFit_pcms)
 	@ find . \( -name "*~" -o -name "\#*\#" \) -exec $(rm) \{\} \;
 
 distclean:
