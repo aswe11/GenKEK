@@ -48,18 +48,18 @@ GenFit implement into the J-PARC E42 K1.8 Analyzer
    Install the GenFit package and the GenKEK follows.
 
    How-to Compile:
-```sh
-$> cp Makefile.genfit Makefile
-$> make
-$> make pcms
-```
+   ```sh
+   $> cp Makefile.genfit Makefile
+   $> make
+   $> make pcms
+   ```
    You can complie seperately 1. K1.8-Analyer(k18ana) or 2. GenKEK(genfit)
 
-```yml
-all: k18ana genfit
-k18ana: lib usr dst
-genfit: genkek genfit_dst
-```
+   ```yml
+   all: k18ana genfit
+   k18ana: lib usr dst
+   genfit: genkek genfit_dst
+   ```
 
 ## Library
 
@@ -69,9 +69,17 @@ genfit: genkek genfit_dst
 
 ## Paramters
 
-   Add “TPCGDML io theconfR paramter
+   Add "TPCGDML" in the conf param file
    ```yml
    TPCGDML:  param/geometry/hypypcGeo.gdml
    ```
-   And add “Fitter” & “nItertatioin the USER paramters
-   ![userparam.png](userparam.png "caption")
+
+   And add "Fitter" and "Iteration" in the USER param file
+   ```yml
+   #GenFit
+   Fitter 0 #KalmanFitterRefTrack
+   #Fitter 1 #KalmanFitter
+   #Fitter 2 #DAF w/ RefTrack
+   #Fitter 3 #DAF w/o RefTrack
+   nIteration 5 20
+   ```
