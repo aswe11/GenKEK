@@ -94,7 +94,7 @@ GenKEK development guide
 
 ## GenKEK directory
 
-   All files are placed in "genfit/genkek/".
+   All files are placed in "genfit/genkek/". \
    e.g.) genfit/genkek/include/HypTPCTask.hh, genfit/genkek/src/HypTPCTask.cc
 
 ## Units
@@ -111,11 +111,11 @@ GenKEK development guide
    - HypTPCSpacePointMeasurement & HypTPCHit : Translating HitPos&Resolution information into the GenFit format
    - HypTPCFitter : Handling GenFit Fitting algorithms
 
-   Main Parts for the track fitting
+   Main Parts for the track fitting \
    Inheritance ( HypTPCTrack -> HypTPCFitProcess -> HypTPCTask )
 
-   - HypTPCTrack : Track container
-   GenFit tracks can be provided several TrackReps to describe the same track in order to fit different particle hypotheses(Pion, Proton ...) -> Find best reslt (defult setting is finding minChi2)
+   - HypTPCTrack : Track container \
+   GenFit tracks can be provided several TrackReps to describe the same track in order to fit different particle hypotheses(Pion, Proton ...) -> Find best reslt (defult setting is finding minChi2) \
    TPCLocalTrack/TPCLocalTrackHelix should provide "PDGcode" and initial "Position seed" & "Momentum seed" from pre-fitting.
    - HypTPCFitProcess : Handling the fitting process
    - HypTPCTask : Useful functions (Handling the fit results)
@@ -123,8 +123,8 @@ GenKEK development guide
 
 ## development guide
 
-   Please add more functions in the HypTPCTask class.
-   Get a fitted-track from the container and use GenFit functions to work the way you want.
+   Please add more functions in the HypTPCTask class. \
+   Get a fitted-track from the container and use GenFit functions to work the way you want. \
    1. Directly use the genfit::Track or 2. Get genfit::FitStatus from the track and use it or 3. Get genfit::AbsTrackRep to use hypothese and track parameterization
 
    You can find most useful GenFit funtions in the follows.
@@ -133,7 +133,7 @@ GenKEK development guide
    genfit/core/include/MeasuredStateOnPlane.h, StateOnPlane.h ... : functions for State vector
    genfit/core/include/AbsTrackRep : extrapolation and others
    ```
-   Expecially core directory has most useful functions.
+   Expecially core directory has most useful functions. \
    All header files have discription.
 
    e.g. 1) HypTPC::GetTrackLength()
