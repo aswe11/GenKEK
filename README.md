@@ -99,7 +99,7 @@ GenKEK development guide
 
 ## Units
 
-   GenFit : GeV/c, ns, cm, kGauss
+   GenFit : GeV/c, ns, cm, kGauss \
    K1.8Ana : GeV/c, ns, mm, T
 
 ## Features
@@ -121,7 +121,7 @@ GenKEK development guide
    - HypTPCTask : Useful functions (Handling the fit results)
    e.g.) get fitting results (chi2, ndf, tof, mom, length, residuals...) or useful functions (extrapolation...)
 
-## development guide
+## Development guide
 
    Please add more functions in the HypTPCTask class. \
    Get a fitted-track from the container and use GenFit functions to work the way you want. \
