@@ -35,24 +35,34 @@ GenFit implement into the J-PARC E42 K1.8 Analyzer
 
 ## Environment setting
 
-   Same as K1.8Ana
-
-## Install the GenFit package and the GenKEK follows.
+   Nothing to do. Same as K1.8-analyzer
 
 ## Features
-   - GenFit package()
-   - GenFit-based Track Follower
-   - Rave-based Vertex Finder
-   - JSON-based Event Exporter (event => Event Display format)
+
+   - GenFit package
+   - GenKEK codes
+   - GenKEK dsts
+   - HypTPC geometry GDML
 
 ## Install
 
-Pre-requisite: g++11
+   Install the GenFit package and the GenKEK follows.
 
-How-to Compile:
+   How-to Compile:
 ```sh
+$> cp Makefile.genfit Makefile
 $> make
+$> make pcms
 ```
+   You can complie seperately 1. K1.8-Analyer(k18ana) or 2. GenKEK(genfit)
+
+```sh
+all: k18ana genfit
+k18ana: lib usr dst
+genfit: genkek genfit_dst
+```
+
+
 ## License
 
 MIT
