@@ -63,7 +63,7 @@ GenFit implement into the J-PARC E42 K1.8 Analyzer
 
 ## Library
 
-   lib/libK18Analyzer.a : for K1.8-analyzer compiling
+   lib/libK18Analyzer.a : for K1.8-analyzer compiling \
    lib/ligGenKEK.a : for K1.8-analyzer & GenFit package & GenKEK compiling
 
 
@@ -86,7 +86,7 @@ GenFit implement into the J-PARC E42 K1.8 Analyzer
 
 ## dst rule
 
-   GenKEK dsts have name starting with "Genfit" and should be placed at "dst/"
+   GenKEK dsts have name starting with "Genfit" and should be placed at "dst/" \
    e.g.) dst/GenfitHelixGeant4.cc, dst/GenfitSkeleton.cc
 
 GenKEK development guide
