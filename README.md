@@ -31,7 +31,6 @@ GenFit implement into the J-PARC E42 K1.8 Analyzer
 <div style="text-align: right;">
  2022.07.15
  </div><br>
-#GenKEK
 
 ## Environment setting
 
@@ -56,13 +55,21 @@ $> make pcms
 ```
    You can complie seperately 1. K1.8-Analyer(k18ana) or 2. GenKEK(genfit)
 
-```sh
+```yml
 all: k18ana genfit
 k18ana: lib usr dst
 genfit: genkek genfit_dst
 ```
 
+## Library
 
-## License
+   lib/libK18Analyzer.a : for K1.8-analyzer compiling
+   lib/ligGenKEK.a : for K1.8-analyzer & GenFit package & GenKEK compiling
 
-MIT
+
+## Paramters
+
+   Add “TPCGDML io theconfR paramters
+   ![confparam.png](confparam.png "caption")
+   And add “Fitter” & “nItertatioin the USER paramters
+   ![userparam.png](userparam.png "caption")
