@@ -69,7 +69,9 @@ genfit: genkek genfit_dst
 
 ## Paramters
 
-   Add “TPCGDML io theconfR paramters
-   ![confparam.png](confparam.png "caption")
+   Add “TPCGDML io theconfR paramter
+   ```yml
+   TPCGDML:  param/geometry/hypypcGeo.gdml
+   ```
    And add “Fitter” & “nItertatioin the USER paramters
    ![userparam.png](userparam.png "caption")
