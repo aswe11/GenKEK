@@ -24,17 +24,23 @@
      </section>
  ---
 
-#GenKEK
 
 GenFit implement into the J-PARC E42 K1.8 Analyzer
+====================
+
+<div style="text-align: right;">
+ 2022.07.15
+ </div><br>
+#GenKEK
 
 ## Environment setting
 
+   Same as K1.8Ana
 
 ## Install the GenFit package and the GenKEK follows.
 
 ## Features
-   - CA-based Seed Finder
+   - GenFit package()
    - GenFit-based Track Follower
    - Rave-based Vertex Finder
    - JSON-based Event Exporter (event => Event Display format)
