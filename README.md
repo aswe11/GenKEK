@@ -107,7 +107,7 @@ GenKEK development guide
 
 ## Features
 
-   Environment setting and Translation
+   Environment setting and translation
 
    - HypTPC geometry file (param/geometry/hyptpcGeo.gdml)
    - HypTPCFieldMan : HS field management
@@ -127,33 +127,46 @@ GenKEK development guide
 ## Development guide
 
    Please add more functions in the HypTPCTask class. \
-   Get a fitted-track from the container and use GenFit functions to work the way you want. \
-   1. Directly use the genfit::Track \
-   or 2. Get genfit::FitStatus from the track and use it \
-   or 3. Get genfit::AbsTrackRep to use hypothese and track parameterization
+   You can get a fitted-track from the container or TrackRep or FitState or FitStatus. \
 
-   You can find most useful GenFit funtions in the follows.
+   ```yml
+   genfit::Track* GetFittedTrack(int trackid) const;
+   genfit::AbsTrackRep* GetTrackRep(int trackid) const;
+   genfit::FitStatus* GetFitStatus(int trackid) const;
+   genfit::MeasuredStateOnPlane GetFitState(int trackid) const;
+   ```
+
+   \
+   Please use the GenFit functions to make it work the way you want. \
+   You can find most useful GenFit funtions in the follows. \
+   Expecially, core directory has most useful functions. \
+   All header files have discription.\
 
    ```yml
    genfit/core/include/track.h .. : useful track functions
    genfit/core/include/MeasuredStateOnPlane.h, StateOnPlane.h ... : functions for State vector
-   genfit/core/include/AbsTrackRep : extrapolation and others
+   genfit/core/include/AbsTrackRep.h : extrapolation and others
+   genfit/core/include/FitStatus.h : functions to call the fitstatus
    ```
 
-   Expecially core directory has most useful functions. \
-   All header files have discription.
-
-   e.g. 1) HypTPC::GetTrackLength()
-
-   ```yml
-   genfit::Track* fittedTrack = GetTrack(trackid);
-   length = 10*fittedTrack -> getTrackLen(nullptr,start,end); //cm -> mm
-   return length;
-   ```
-
-   e.g. 2) HypTPC::GetChi2()
+   \
+   \
+   And there are functions to print the fitting parameters or extrapolation and the others\
 
    ```yml
-   genfit::FitStatus *fitStatus = GetFitStatus(trackid);
-   if(fitStatus) chi2 = fitStatus -> getChi2();
+   //Parameters
+   double GetChi2(int trackid) const;
+   double GetNDF(int trackid) const;
+   double GetChi2NDF(int trackid) const;
+   double GetCharge(int trackid) const;
+   TVector3 GetMom(int trackid) const;
+   TVector3 GetPos0(int trackid) const; //Get Vertex position
+   double GetTrackLength(int trackid, int start=0, int end=-1) const;
+   double GetTrackTOF(int trackid, int start=0, int end=-1) const;
+
+   //Extrapolation
+   bool ExtrapolateTrack(int trackid, double distance, TVector3 &pos) const;
+   bool ExtrapolateToPoint(int trackid, TVector3 point, TVector3 &pos) const;
+   bool GetPosOnPlane(int trackid, genfit::SharedPlanePtr plane, TVector3 &pos) const;
+   bool IsInsideTarget(int trackid) const;
    ```
