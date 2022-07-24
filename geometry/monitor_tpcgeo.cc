@@ -1,6 +1,6 @@
 void monitor_tpcgeo(){
 
-  TGeoManager::Import("hyptpcGeo.gdml");
+  TGeoManager::Import("ver.2/hyptpcGeo.gdml");
   gGeoManager -> GetTopVolume() -> Draw("ogl");
 
 }
