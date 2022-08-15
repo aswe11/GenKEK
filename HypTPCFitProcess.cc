@@ -13,6 +13,8 @@
 
 ClassImp(HypTPCFitProcess)
 
+void HypTPCFitProcess::DebugMode(){ HypTPCFitter::_fitter -> setDebugLvl(); }
+
 bool HypTPCFitProcess::FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep) const {
 
   if(rep==nullptr) return false;
