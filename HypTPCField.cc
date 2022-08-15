@@ -6,6 +6,7 @@
 //k18-analyzer
 #include "ConfMan.hh"
 #include "FieldMan.hh"
+#include "DCGeomMan.hh"
 #include "ThreeVector.hh"
 
 using namespace std;
@@ -13,6 +14,8 @@ using namespace std;
 namespace{
   const auto& gField  = FieldMan::GetInstance();
   const auto& valueHSHall = ConfMan::Get<Double_t>("HSFLDHALL");
+  const auto&    gGeom = DCGeomMan::GetInstance();
+  const int HSid = gGeom.DetectorId("HS");
 }
 
 // Interface of the K18 B-field map with GenFit
@@ -30,9 +33,10 @@ HypTPCField::HypTPCField(bool is_constant_field)
 TVector3 HypTPCField::get(const TVector3& position) const{
 
   TVector3 B;
-  TVector3 pos(10*position.X(),10*position.Y(),10*position.Z());  //cm -> mm
+  ThreeVector pos(10*position.X(),10*position.Y(),10*position.Z());  //cm -> mm
+  ThreeVector posGlobal = gGeom.Local2GlobalPos(HSid,pos);
   if(m_is_const) B = TVector3(0.,const_field,0.);
   else B = gField.GetField(pos);
-  return 10*B; //T -> kGauss
 
+  return 10*B; //T -> kGauss
 }
