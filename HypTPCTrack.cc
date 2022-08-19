@@ -98,14 +98,13 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
   covSeed(1, 1) = resY*resY;
   covSeed(2, 2) = resT*resT/2.;
 
-  double factor = 0.001; //need to fix later
   resT *= 0.01; //cm -> m
   double L = 0.001*tp -> GetTransversePath(); //mm -> m
   double Pt2 = momSeed.x()*momSeed.x() + momSeed.z()*momSeed.z();
   double dPt2 = 720./(nMeasurement+4)*Pt2*Pt2/(0.09*L*L*L*L);
-  covSeed(3, 3) = factor*dPt2*resT*resT/2.;
-  covSeed(4, 4) = factor*dPt2*resT*resT/2.;
-  covSeed(5, 5) = factor*dPt2*resT*resT/2.;
+  covSeed(3, 3) = dPt2*resT*resT/2.;
+  covSeed(4, 4) = dPt2*resT*resT/2.;
+  covSeed(5, 5) = dPt2*resT*resT/2.;
   //covSeed.Print();
 
   // set start values and pdg to cand

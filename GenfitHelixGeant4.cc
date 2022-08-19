@@ -156,6 +156,7 @@ struct Event
   Int_t GFnhits[MaxTPCTracks];
   Double_t GFtracklen[MaxTPCTracks];
   Double_t GFchisqr[MaxTPCTracks];
+  Double_t GFpval[MaxTPCTracks];
   Double_t GFtof[MaxTPCTracks];
   Double_t GFmom[MaxTPCTracks];
   Double_t GFcharge[MaxTPCTracks];
@@ -325,6 +326,7 @@ dst::InitializeEvent( void )
     event.mom0[i] =qnan;
     event.pathT[i] =qnan;
     event.GFchisqr[i] =qnan;
+    event.GFpval[i] =qnan;
     event.GFtracklen[i] =qnan;
     event.GFtof[i] =qnan;
     event.GFmom[i] =qnan;
@@ -562,7 +564,6 @@ dst::DstRead( Int_t ievent )
     if(event.g4pid[it][0]!=0) GFtracks.AddHelixTrack(event.g4pid[it][0], tp);
   } //it
 
-  //if(event.ntTpc>0) std::cout<<"k18tracklen : "<<event.tracklen[0][event.nhtrack[0]-1]<<std::endl;
   HF1( g4Hid, event.g4ntTpc );
   for(Int_t i=0; i<event.g4ntTpc; ++i){
     HF1( g4Hid+1, event.g4nhtrack[i] );
@@ -578,6 +579,7 @@ dst::DstRead( Int_t ievent )
     event.GFcharge[igf]=GFtracks.GetCharge(igf);
     event.GFtof[igf]=GFtracks.GetTrackTOF(igf);
     event.GFtracklen[igf]=GFtracks.GetTrackLength(igf);
+    event.GFpval[igf]=GFtracks.GetPvalue(igf);
     event.GFndf[igf]=GFtracks.GetNDF(igf);
     event.GFnhits[igf]=GFtracks.GetNHits(igf);
     TVector3 htofhit; TVector3 htofmom; double htoflen; double htoftof;
@@ -599,7 +601,7 @@ dst::DstRead( Int_t ievent )
     HF1( genfitHid+7, posv.x());
     HF1( genfitHid+8, posv.y());
     HF1( genfitHid+9, posv.z());
-    HF1( genfitHid+15, GFtracks.GetPvalue(igf));
+    HF1( genfitHid+15, event.GFpval[igf]);
   }
   HF1( genfitHid, event.GFntTpc );
 
@@ -629,12 +631,12 @@ dst::DstRead( Int_t ievent )
       HF1( k18Hid+4, event.chisqr[it]);
       HF1( k18Hid+5, event.tracklen[it][event.nhtrack[it]-1]);
       HF1( k18Hid+6, event.tof[it][event.nhtrack[it]-1]);
-      HF1( k18Hid+7, event.residual_px[it][0]);
-      HF1( k18Hid+8, event.residual_py[it][0]);
-      HF1( k18Hid+9, event.residual_pz[it][0]);
-      HF1( k18Hid+10, event.residual_x[it][0]);
-      HF1( k18Hid+11, event.residual_y[it][0]);
-      HF1( k18Hid+12, event.residual_z[it][0]);
+      HF1( k18Hid+7, event.residual_x[it][0]);
+      HF1( k18Hid+8, event.residual_y[it][0]);
+      HF1( k18Hid+9, event.residual_z[it][0]);
+      HF1( k18Hid+10, event.residual_px[it][0]);
+      HF1( k18Hid+11, event.residual_py[it][0]);
+      HF1( k18Hid+12, event.residual_pz[it][0]);
       HF1( genfitHid+1, event.GFnhits[it]);
       HF1( genfitHid+2, event.GFmom[it]);
       HF1( genfitHid+3, event.GFresidual_p[it]);
@@ -689,12 +691,12 @@ ConfMan::InitializeHistograms( void )
   HB1(k18Hid+4, "[K1.8] Chisqr/ndf;", 1000, 0, 50 );
   HB1(k18Hid+5, "[K1.8] Track Length; Length [mm]; Counts [/1 mm]", 500, 0, 500 );
   HB1(k18Hid+6, "[K1.8] Tof; Tof [ns]; Counts [/0.01 ns]", 500, 0, 5 );
-  HB1(k18Hid+7, "[K1.8] p_x Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(k18Hid+8, "[K1.8] p_y Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(k18Hid+9, "[K1.8] p_z Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(k18Hid+10, "[K1.8] Residual x;Residual x [mm]; Number of Tracks", 500, -1, 1);
-  HB1(k18Hid+11, "[K1.8] Residual y;Residual y [mm]; Number of Tracks", 500, -1, 1);
-  HB1(k18Hid+12, "[K1.8] Residual z;Residual z [mm]; Number of Tracks", 500, -1, 1);
+  HB1(k18Hid+7, "[K1.8] Residual x;Residual x [mm]; Number of Tracks", 500, -1, 1);
+  HB1(k18Hid+8, "[K1.8] Residual y;Residual y [mm]; Number of Tracks", 500, -1, 1);
+  HB1(k18Hid+9, "[K1.8] Residual z;Residual z [mm]; Number of Tracks", 500, -1, 1);
+  HB1(k18Hid+10, "[K1.8] p_x Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(k18Hid+11, "[K1.8] p_y Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(k18Hid+12, "[K1.8] p_z Residual;Residual [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
   HB1(genfitHid, "[GenFit] #Track TPC", 10, 0., 10. );
   HB1(genfitHid+1, "[GenFit] #Hits of Track TPC", 33, 0., 33. );
   HB1(genfitHid+2, "[GenFit] Reconstructed P; P [GeV/c]; Counts [/0.001 GeV/c]", 1500, 0., 1.5 );
@@ -715,18 +717,19 @@ ConfMan::InitializeHistograms( void )
   HB1(genfitHid+17, "[GenFit] Residual v';Residual; Number of Tracks", 100, -0.03, 0.03);
   HB1(genfitHid+18, "[GenFit] Residual u;Residual [cm]; Number of Tracks", 100, -0.1, 0.1);
   HB1(genfitHid+19, "[GenFit] Residual v;Residual [cm]; Number of Tracks", 100, -0.1, 0.1);
-  HB1(genfitHid+20, "[GenFit] P_x;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+21, "[GenFit] P_y;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+22, "[GenFit] P_z;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+23, "[GenFit] x;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+24, "[GenFit] y;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+25, "[GenFit] z;pull; Number of Tracks", 1000, -6, 6);
-  HB1(genfitHid+26, "[GenFit] Residual P_x;Residual P_x [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(genfitHid+27, "[GenFit] Residual P_y;Residual P_y [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(genfitHid+28, "[GenFit] Residual P_z;Residual P_z [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(genfitHid+29, "[GenFit] Residual x;Residual x [cm] ; Number of Tracks", 500, -0.1, 0.1);
-  HB1(genfitHid+30, "[GenFit] Residual y;Residual y [cm]; Number of Tracks", 500, -0.1, 0.1);
-  HB1(genfitHid+31, "[GenFit] Residual z;Residual z [cm]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+20, "[GenFit] pull x;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+21, "[GenFit] pull y;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+22, "[GenFit] pull z;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+23, "[GenFit] pull P_x;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+24, "[GenFit] pull P_y;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+25, "[GenFit] pull P_z;pull; Number of Tracks", 1000, -6, 6);
+  HB1(genfitHid+26, "[GenFit] Residual x;Residual x [cm]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+27, "[GenFit] Residual y;Residual y [cm]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+28, "[GenFit] Residual z;Residual z [cm]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+29, "[GenFit] Residual P_x;Residual P_x [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+30, "[GenFit] Residual P_y;Residual P_y [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
+  HB1(genfitHid+31, "[GenFit] Residual P_z;Residual P_z [GeV/c]; Number of Tracks", 500, -0.1, 0.1);
+
 
   HBTree( "tpc", "tree of tpc" );
 
@@ -804,6 +807,7 @@ ConfMan::InitializeHistograms( void )
   tree->Branch("GFinside",event.GFinside,"GFinside[GFntTpc]/D");
   tree->Branch("GFresidual_p",event.GFresidual_p,"GFresidual_p[GFntTpc]/D");
   tree->Branch("GFchisqr",event.GFchisqr,"GFchisqr[GFntTpc]/D");
+  tree->Branch("GFpval",event.GFpval,"GFpval[GFntTpc]/D");
   tree->Branch("GFmom",event.GFmom,"GFmom[GFntTpc]/D");
   tree->Branch("GFcharge",event.GFcharge,"GFcharge[GFntTpc]/D");
   tree->Branch("GFtracklen",event.GFtracklen,"GFtracklen[GFntTpc]/D");
