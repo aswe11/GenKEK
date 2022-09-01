@@ -42,9 +42,8 @@ const auto& gUser = UserParamMan::GetInstance();
 const auto& gPHC  = HodoPHCMan::GetInstance();
 debug::ObjectCounter& gCounter  = debug::ObjectCounter::GetInstance();
 
-const Int_t MaxTPCHits = 10000;
+const Int_t MaxTPCHits = 500;
 const Int_t MaxTPCTracks = 100;
-const Int_t MaxTPCnHits = 50;
 
 //const bool IsWithRes = false;
 const bool IsWithRes = true;
@@ -93,7 +92,13 @@ struct Event
   Double_t GFtracklen[MaxTPCTracks];
   Double_t GFchisqr[MaxTPCTracks];
   Double_t GFtof[MaxTPCTracks];
-  Double_t GFmom[MaxTPCTracks];
+  Double_t GFpos_x[MaxTPCTracks][MaxTPCHits];
+  Double_t GFpos_y[MaxTPCTracks][MaxTPCHits];
+  Double_t GFpos_z[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_x[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_y[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_z[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom[MaxTPCTracks][MaxTPCHits];
 
   void clear()
   {
@@ -202,7 +207,15 @@ dst::InitializeEvent( void )
     event.GFchisqr[i] =qnan;
     event.GFtracklen[i] =qnan;
     event.GFtof[i] =qnan;
-    event.GFmom[i] =qnan;
+    for(Int_t j=0; j<MaxTPCHits; ++j){
+      event.GFmom_x[i][j] =qnan;
+      event.GFmom_y[i][j] =qnan;
+      event.GFmom_z[i][j] =qnan;
+      event.GFmom[i][j] =qnan;
+      event.GFpos_x[i][j] =qnan;
+      event.GFpos_y[i][j] =qnan;
+      event.GFpos_z[i][j] =qnan;
+    }
   }
 
   return true;
@@ -305,7 +318,17 @@ dst::DstRead( Int_t ievent )
     event.GFchisqr[igf]=GFtracks.GetChi2NDF(igf);
     event.GFtracklen[igf]=GFtracks.GetTrackLength(igf);
     event.GFtof[igf]=GFtracks.GetTrackTOF(igf);
-    event.GFmom[igf]=GFtracks.GetMom(igf).Mag();
+    for( Int_t ihit=0; ihit<GFtracks.GetNHits(igf); ++ihit ){
+      TVector3 hit = GFtracks.GetPos(igf, ihit);
+      TVector3 mom = GFtracks.GetMom(igf, ihit);
+      event.GFmom_x[igf][ihit] = mom.x();
+      event.GFmom_y[igf][ihit] = mom.y();
+      event.GFmom_z[igf][ihit] = mom.z();
+      event.GFmom[igf][ihit] = mom.Mag();
+      event.GFpos_x[igf][ihit] = hit.x();
+      event.GFpos_y[igf][ihit] = hit.y();
+      event.GFpos_z[igf][ihit] = hit.z();
+    }
   }
 
   GFtracks.Init();
@@ -357,6 +380,13 @@ ConfMan::InitializeHistograms( void )
   tree->Branch("GFmom",event.GFmom,"GFmom[GFntTpc]/D");
   tree->Branch("GFtracklen",event.GFtracklen,"GFtracklen[GFntTpc]/D");
   tree->Branch("GFtof",event.GFtof,"GFtof[GFntTpc]/D");
+  tree->Branch("GFpos_x",event.GFpos_x,Form("GFpos_x[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFpos_y",event.GFpos_y,Form("GFpos_y[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFpos_z",event.GFpos_z,Form("GFpos_z[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_x",event.GFmom_x,Form("GFmom_x[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_y",event.GFmom_y,Form("GFmom_y[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_z",event.GFmom_z,Form("GFmom_z[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom",event.GFmom,Form("GFmom[GFntTpc][%d]/D",MaxTPCHits));
 
   ////////// Bring Address From Dst
   TTreeReaderCont[kTpcHit] = new TTreeReader("tpc", TFileCont[kTpcHit]);

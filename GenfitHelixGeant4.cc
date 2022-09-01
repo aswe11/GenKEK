@@ -158,7 +158,7 @@ struct Event
   Double_t GFchisqr[MaxTPCTracks];
   Double_t GFpval[MaxTPCTracks];
   Double_t GFtof[MaxTPCTracks];
-  Double_t GFmom[MaxTPCTracks];
+
   Double_t GFcharge[MaxTPCTracks];
   Double_t GFresidual_p[MaxTPCTracks];
   Int_t GFnhHtof;
@@ -167,8 +167,19 @@ struct Event
   Double_t GFzHtof[MaxTPCTracks];
   Double_t GFtracklenHtof[MaxTPCTracks];
   Double_t GFtofHtof[MaxTPCTracks];
-  Double_t GFpulls[MaxTPCTracks][5];
-  Double_t GFresiduals[MaxTPCTracks][5];
+  Double_t GFpos_x[MaxTPCTracks][MaxTPCHits];
+  Double_t GFpos_y[MaxTPCTracks][MaxTPCHits];
+  Double_t GFpos_z[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_x[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_y[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom_z[MaxTPCTracks][MaxTPCHits];
+  Double_t GFmom[MaxTPCTracks][MaxTPCHits];
+  Double_t GFpulls[MaxTPCTracks][5]; //extrapolation to the reference point
+  Double_t GFresiduals[MaxTPCTracks][5]; //extrapolation to the reference point
+  Double_t GFresidual_x[MaxTPCTracks][MaxTPCHits];
+  Double_t GFresidual_y[MaxTPCTracks][MaxTPCHits];
+  Double_t GFresidual_z[MaxTPCTracks][MaxTPCHits];
+
 };
 
 //_____________________________________________________________________
@@ -329,7 +340,6 @@ dst::InitializeEvent( void )
     event.GFpval[i] =qnan;
     event.GFtracklen[i] =qnan;
     event.GFtof[i] =qnan;
-    event.GFmom[i] =qnan;
     event.GFcharge[i] =qnan;
     event.GFresidual_p[i] =qnan;
     event.GFxHtof[i] =qnan;
@@ -378,6 +388,17 @@ dst::InitializeEvent( void )
       event.residual_p[i][j] =qnan;
       event.g4tid[i][j] =0;
       event.g4pid[i][j] =0;
+
+      event.GFmom_x[i][j] =qnan;
+      event.GFmom_y[i][j] =qnan;
+      event.GFmom_z[i][j] =qnan;
+      event.GFmom[i][j] =qnan;
+      event.GFpos_x[i][j] =qnan;
+      event.GFpos_y[i][j] =qnan;
+      event.GFpos_z[i][j] =qnan;
+      event.GFresidual_x[i][j] =qnan;
+      event.GFresidual_y[i][j] =qnan;
+      event.GFresidual_z[i][j] =qnan;
     }
   }
 
@@ -476,7 +497,7 @@ dst::DstRead( Int_t ievent )
   HF1( k18Hid, event.ntTpc );
   for( Int_t it=0; it<ntTpc; ++it ){
     TPCLocalTrackHelix *tp= DCAna->GetTrackTPCHelix(it);
-   if(!tp) continue;
+    if(!tp) continue;
     Int_t nh = tp->GetNHit();
     Double_t chisqr = tp->GetChiSquare();
     Double_t cx = tp->Getcx(), cy = tp->Getcy();
@@ -503,8 +524,8 @@ dst::DstRead( Int_t ievent )
       layerId = hit->GetLayer();
       TVector3 hitpos = hit->GetLocalHitPos();
       TVector3 calpos = hit->GetLocalCalPosHelix();
-      Double_t residual = hit->GetResidual();
-      TVector3 res_vect = hit->GetResidualVect();
+      //Double_t residual = hit->GetResidual();
+      //TVector3 res_vect = hit->GetResidualVect();
       TVector3 mom = hit->GetMomentumHelix();
       Double_t checker=9999;
       for( Int_t ih2=0; ih2<src.nhittpc; ++ih2 ){
@@ -527,7 +548,12 @@ dst::DstRead( Int_t ievent )
 	  event.residual_py[it][ih] = mom.y() - src.pytpc[ih2];
 	  event.residual_pz[it][ih] = mom.z() - src.pztpc[ih2];
 	  event.residual_p[it][ih] = mom.Mag() - src.pptpc[ih2];
-
+	  event.residual_x[it][ih] = calpos.x() - event.g4pos_x[it][ih];
+	  event.residual_y[it][ih] = calpos.y() - event.g4pos_y[it][ih];
+	  event.residual_z[it][ih] = calpos.z() - event.g4pos_z[it][ih];
+	  event.residual[it][ih] = TMath::Sqrt(event.residual_x[it][ih]*event.residual_x[it][ih]+
+					       event.residual_y[it][ih]*event.residual_y[it][ih]+
+					       event.residual_z[it][ih]*event.residual_z[it][ih]);
 	  event.g4tid[it][ih] = src.ititpc[ih2];
 	  event.g4pid[it][ih] = src.idtpc[ih2];
 
@@ -555,10 +581,10 @@ dst::DstRead( Int_t ievent )
       event.mom_y[it][ih] = mom.y();
       event.mom_z[it][ih] = mom.z();
       event.mom[it][ih] = mom.Mag();
-      event.residual[it][ih] = residual;
-      event.residual_x[it][ih] = res_vect.x();
-      event.residual_y[it][ih] = res_vect.y();
-      event.residual_z[it][ih] = res_vect.z();
+      //event.residual[it][ih] = residual;
+      //event.residual_x[it][ih] = res_vect.x();
+      //event.residual_y[it][ih] = res_vect.y();
+      //event.residual_z[it][ih] = res_vect.z();
     } //ih
     //Add tracks into the GenFit TrackCand
     if(event.g4pid[it][0]!=0) GFtracks.AddHelixTrack(event.g4pid[it][0], tp);
@@ -572,9 +598,23 @@ dst::DstRead( Int_t ievent )
   HF1( 2, event.GFstatus++ );
 
   GFtracks.FitTracks();
+  event.GFntTpc=GFtracks.GetNTrack();
   for( Int_t igf=0; igf<GFtracks.GetNTrack(); ++igf ){
-   if(!GFtracks.FitCheck(igf)) continue;
-    event.GFntTpc++;
+    if(!GFtracks.FitCheck(igf)) continue;
+    for( Int_t ihit=0; ihit<GFtracks.GetNHits(igf); ++ihit ){
+      TVector3 hit = GFtracks.GetPos(igf, ihit);
+      TVector3 mom = GFtracks.GetMom(igf, ihit);
+      event.GFmom_x[igf][ihit] = mom.x();
+      event.GFmom_y[igf][ihit] = mom.y();
+      event.GFmom_z[igf][ihit] = mom.z();
+      event.GFmom[igf][ihit] = mom.Mag();
+      event.GFpos_x[igf][ihit] = hit.x();
+      event.GFpos_y[igf][ihit] = hit.y();
+      event.GFpos_z[igf][ihit] = hit.z();
+      event.GFresidual_x[igf][ihit] = hit.x() - event.g4pos_x[igf][ihit];
+      event.GFresidual_y[igf][ihit] = hit.y() - event.g4pos_y[igf][ihit];
+      event.GFresidual_z[igf][ihit] = hit.z() - event.g4pos_z[igf][ihit];
+    }
     event.GFchisqr[igf]=GFtracks.GetChi2NDF(igf);
     event.GFcharge[igf]=GFtracks.GetCharge(igf);
     event.GFtof[igf]=GFtracks.GetTrackTOF(igf);
@@ -582,6 +622,7 @@ dst::DstRead( Int_t ievent )
     event.GFpval[igf]=GFtracks.GetPvalue(igf);
     event.GFndf[igf]=GFtracks.GetNDF(igf);
     event.GFnhits[igf]=GFtracks.GetNHits(igf);
+
     TVector3 htofhit; TVector3 htofmom; double htoflen; double htoftof;
     if(GFtracks.ExtrapolateToHTOF(igf,htofhit,htofmom,htoflen,htoftof)){
       event.GFnhHtof++;
@@ -591,13 +632,11 @@ dst::DstRead( Int_t ievent )
       event.GFtracklenHtof[igf]=htoflen;
       event.GFtofHtof[igf]=htoftof;
     }
-    TVector3 target(0.,0.,tpc::ZTarget);
-    TVector3 posv; TVector3 momv; double len; double tof;
-    GFtracks.ExtrapolateToPoint(igf,target,posv,momv,len,tof);
-    event.GFmom[igf]=momv.Mag();
-
     if(!GFtracks.IsInsideTarget(igf)) event.GFinside[igf]=1;
     else event.GFinside[igf]=0;
+
+    TVector3 posv; TVector3 momv; double len; double tof;
+    GFtracks.ExtrapolateToTarget(igf,posv,momv,len,tof);
     HF1( genfitHid+7, posv.x());
     HF1( genfitHid+8, posv.y());
     HF1( genfitHid+9, posv.z());
@@ -626,7 +665,7 @@ dst::DstRead( Int_t ievent )
 	}
       }
       HF1( k18Hid+1, event.nhtrack[it]);
-      HF1( k18Hid+2, event.mom0[it]);
+      HF1( k18Hid+2, event.mom[it][0]);
       HF1( k18Hid+3, event.residual_p[it][0]);
       HF1( k18Hid+4, event.chisqr[it]);
       HF1( k18Hid+5, event.tracklen[it][event.nhtrack[it]-1]);
@@ -638,7 +677,7 @@ dst::DstRead( Int_t ievent )
       HF1( k18Hid+11, event.residual_py[it][0]);
       HF1( k18Hid+12, event.residual_pz[it][0]);
       HF1( genfitHid+1, event.GFnhits[it]);
-      HF1( genfitHid+2, event.GFmom[it]);
+      HF1( genfitHid+2, event.GFmom[it][0]);
       HF1( genfitHid+3, event.GFresidual_p[it]);
       HF1( genfitHid+4, event.GFchisqr[it]);
       HF1( genfitHid+5, event.GFtracklen[it]);
@@ -804,11 +843,10 @@ ConfMan::InitializeHistograms( void )
   //GenFit fit results
   tree->Branch("GFstatus",&event.GFstatus,"GFstatus/I");
   tree->Branch("GFntTpc",&event.GFntTpc,"GFntTpc/I");
-  tree->Branch("GFinside",event.GFinside,"GFinside[GFntTpc]/D");
+  tree->Branch("GFinside",event.GFinside,"GFinside[GFntTpc]/I");
   tree->Branch("GFresidual_p",event.GFresidual_p,"GFresidual_p[GFntTpc]/D");
   tree->Branch("GFchisqr",event.GFchisqr,"GFchisqr[GFntTpc]/D");
   tree->Branch("GFpval",event.GFpval,"GFpval[GFntTpc]/D");
-  tree->Branch("GFmom",event.GFmom,"GFmom[GFntTpc]/D");
   tree->Branch("GFcharge",event.GFcharge,"GFcharge[GFntTpc]/D");
   tree->Branch("GFtracklen",event.GFtracklen,"GFtracklen[GFntTpc]/D");
   tree->Branch("GFtof",event.GFtof,"GFtof[GFntTpc]/D");
@@ -816,6 +854,16 @@ ConfMan::InitializeHistograms( void )
   tree->Branch("GFnhits",event.GFnhits,"GFnhits[GFntTpc]/I");
   tree->Branch("GFpulls",event.GFpulls,"GFpulls[GFntTpc][5]/D");
   tree->Branch("GFresiduals",event.GFresiduals,"GFresiduals[GFntTpc][5]/D");
+  tree->Branch("GFresidual_x",event.GFresidual_x,Form("GFresidual_x[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFresidual_y",event.GFresidual_y,Form("GFresidual_y[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFresidual_z",event.GFresidual_z,Form("GFresidual_z[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFpos_x",event.GFpos_x,Form("GFpos_x[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFpos_y",event.GFpos_y,Form("GFpos_y[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFpos_z",event.GFpos_z,Form("GFpos_z[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_x",event.GFmom_x,Form("GFmom_x[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_y",event.GFmom_y,Form("GFmom_y[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom_z",event.GFmom_z,Form("GFmom_z[GFntTpc][%d]/D",MaxTPCHits));
+  tree->Branch("GFmom",event.GFmom,Form("GFmom[GFntTpc][%d]/D",MaxTPCHits));
 
   tree->Branch("GFnhHtof",&event.GFnhHtof,"GFnhHtof/I");
   tree->Branch("GFxHtof",event.GFxHtof,"GFxHtof[GFntTpc]/D");
@@ -861,7 +909,6 @@ ConfMan::InitializeHistograms( void )
   TTreeCont[kTPCGeant]->SetBranchStatus("pytpc", 1);
   TTreeCont[kTPCGeant]->SetBranchStatus("pztpc", 1);
   TTreeCont[kTPCGeant]->SetBranchStatus("pptpc", 1);   // total mometum
-  TTreeCont[kTPCGeant]->SetBranchStatus("timetpc", 1);
   // TTreeCont[kTPCGeant]->SetBranchStatus("masstpc", 1);   // mass TPC
   //TTreeCont[kTPCGeant]->SetBranchStatus("betatpc", 1);
   TTreeCont[kTPCGeant]->SetBranchStatus("timetpc", 1);
