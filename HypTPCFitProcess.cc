@@ -41,6 +41,7 @@ bool HypTPCFitProcess::FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep*
   }
   return true;
 }
+
 bool HypTPCFitProcess::FitCheck(int trackid) const {
 
   genfit::Track* fittedTrack = GetTrack(trackid);

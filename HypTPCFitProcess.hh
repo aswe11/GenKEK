@@ -32,7 +32,6 @@ public:
     else genfit::Exception::quiet(true);
   }
 
-
   bool FitCheck(int trackid) const;
   bool FitCheck(genfit::Track* fittedTrack, genfit::AbsTrackRep* rep=nullptr) const;
 
