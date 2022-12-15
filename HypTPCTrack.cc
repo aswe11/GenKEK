@@ -48,27 +48,23 @@ HypTPCTrack::HypTPCTrack(){
   _measurementFactory = new genfit::MeasurementFactory<genfit::AbsMeasurement>();
   _measurementFactory -> addProducer(TPCDetID, _measurementProducer);
   std::cout<<"GenFit : HypTPCTrack container is ready"<<std::endl;
-
 }
 
 void HypTPCTrack::Init(){
 
   _genfitTrackArray -> Delete();
   _hitClusterArray -> Delete();
-
 }
 
 genfit::Track* HypTPCTrack::GetTrack(int ith) const {
 
   return (genfit::Track*) _genfitTrackArray -> ConstructedAt(ith);
-
 }
 
 void HypTPCTrack::AddReps(int ith, int pdg){
 
   genfit::Track* tr = GetTrack(ith);
   tr -> addTrackRep(new genfit::RKTrackRep(pdg));
-
 }
 
 void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
@@ -114,7 +110,6 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
   //trackCand.setPosMomSeed(posSeed, momSeed, helixTrack -> Charge());
 
   new ((*_genfitTrackArray)[_genfitTrackArray -> GetEntriesFast()]) genfit::Track(trackCand, *_measurementFactory, new genfit::RKTrackRep(pdg));
-
 }
 
 void HypTPCTrack::AddHelixTrack(std::vector<int> pdg, TPCLocalTrackHelix *tp){
@@ -126,7 +121,6 @@ void HypTPCTrack::AddHelixTrack(std::vector<int> pdg, TPCLocalTrackHelix *tp){
     if(i==0) AddHelixTrack(pid, tp);
     else AddReps(Ntracks, pid);
   }
-
 }
 
 void HypTPCTrack::AddLinearTrack(int pdg, TPCLocalTrack *tp, double momentum){
@@ -181,5 +175,4 @@ void HypTPCTrack::AddLinearTrack(std::vector<int> pdg, TPCLocalTrack *tp, double
     if(i==0) AddLinearTrack(pid, tp, momentum);
     else AddReps(Ntracks, pid);
   }
-
 }

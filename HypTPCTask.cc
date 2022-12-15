@@ -65,7 +65,7 @@ HypTPCTask& HypTPCTask::GetInstance(){
 genfit::Track* HypTPCTask::GetFittedTrack(int trackid) const{
 
   genfit::Track* fittedTrack = nullptr;
-  if(FitCheck(trackid)) fittedTrack = GetTrack(trackid);
+  if(TrackCheck(trackid)) fittedTrack = GetTrack(trackid);
   return fittedTrack;
 }
 
@@ -114,8 +114,8 @@ bool HypTPCTask::GetTrackPull(int trackid, int pdg, TVector3 res_vect, double tr
   TVectorD &referenceState = g4stateRef.getState();
   TVectorD referenceState6D = g4stateRef.get6DState();
   //fitted track's state
+  if(!TrackCheck(trackid)) return false;
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
-  if(!FitCheck(trackid)) return false;
   genfit::AbsTrackRep* rep = GetTrackRep(trackid);
   try{rep -> extrapolateToPlane(fitState, g4stateRef.getPlane());} //mm -> cm
   catch(genfit::Exception &e){
@@ -205,7 +205,7 @@ double HypTPCTask::GetCharge(int trackid) const{
   //genfit::AbsTrackRep* rep = GetTrackRep(trackid);
   //if(rep) charge = rep -> getPDGCharge();
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
-  if(FitCheck(trackid)) charge = fitState.getCharge();
+  if(TrackCheck(trackid)) charge = fitState.getCharge();
   return charge;
 }
 
@@ -225,7 +225,7 @@ TVector3 HypTPCTask::GetMom(int trackid, int pointid) const{
     return mom;
   }
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid, pointid);
-  if(FitCheck(trackid)) mom = fitState.getMom();
+  if(TrackCheck(trackid)) mom = fitState.getMom();
   return mom;
 }
 
@@ -237,7 +237,7 @@ TVector3 HypTPCTask::GetPos(int trackid, int pointid) const{
     return pos;
   }
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid, pointid);
-  if(FitCheck(trackid)) pos = 10.*fitState.getPos(); //cm -> mm
+  if(TrackCheck(trackid)) pos = 10.*fitState.getPos(); //cm -> mm
   return pos;
 }
 
@@ -253,7 +253,6 @@ int HypTPCTask::GetNHits(int trackid) const{
   }
   return nhits;
 }
-
 
 double HypTPCTask::GetTrackLength(int trackid, int start, int end) const{
 
@@ -290,7 +289,7 @@ bool HypTPCTask::ExtrapolateTrack(int trackid, double distance, TVector3 &pos, T
   if(distance>=0.) d += 0.1*tracklength;
   genfit::RKTrackRep *rep = (genfit::RKTrackRep *) GetTrackRep(trackid);
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
-  if(!rep || !FitCheck(trackid)) return false;
+  if(!rep || !TrackCheck(trackid)) return false;
   try{rep -> extrapolateBy(fitState, d);}
   catch(genfit::Exception &e){
     if(verbosity>=2) LogWARNING("failed!");
@@ -310,7 +309,7 @@ bool HypTPCTask::ExtrapolateToPoint(int trackid, TVector3 point, TVector3 &pos, 
   tracklen = 0.1*tracklength; //mm -> cm
   genfit::RKTrackRep *rep = (genfit::RKTrackRep *) GetTrackRep(trackid);
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
-  if(!rep || !FitCheck(trackid)) return false;
+  if(!rep || !TrackCheck(trackid)) return false;
 
   double time0 = fitState.getTime();
   double len;
@@ -336,7 +335,7 @@ bool HypTPCTask::ExtrapolateToPlane(int trackid, genfit::SharedPlanePtr plane, T
   tracklen = 0.1*tracklength; //mm -> cm
   genfit::RKTrackRep *rep = (genfit::RKTrackRep *) GetTrackRep(trackid);
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
-  if(!rep || !FitCheck(trackid)) return false;
+  if(!rep || !TrackCheck(trackid)) return false;
 
   double time0 = fitState.getTime();
   try{tracklen += rep -> extrapolateToPlane(fitState, plane);}
