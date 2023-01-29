@@ -50,7 +50,7 @@ public:
   bool ExtrapolateToPlane(int trackid, genfit::SharedPlanePtr plane, TVector3 &pos, TVector3 &mom, double &tracklen, double &tof) const;
   bool ExtrapolateToTarget(int trackid, TVector3 &pos, TVector3 &mom, double &tracklen, double &tof) const;
   bool IsInsideTarget(int trackid) const;
-  bool ExtrapolateToHTOF(int trackid, TVector3 &pos, TVector3 &mom, double &tracklen, double &tof) const;
+  bool ExtrapolateToHTOF(int trackid, int &candidates, int *ID, TVector3 *pos, TVector3 *mom, double *tracklen, double *tof) const;
 
 
 private:

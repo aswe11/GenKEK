@@ -41,8 +41,8 @@ namespace{
 
 HypTPCTask::HypTPCTask() : HypTPCFitProcess() {
 
-  TVector3 pointRef(0,0,htof_l);
-  TVector3 normalRef(0,0,1.);
+  TVector3 pointRef(0,0,-htof_l);
+  TVector3 normalRef(0,0,-1.);
 
   for(int i=0; i<8; i++){
     if(i!=0){
@@ -306,7 +306,6 @@ bool HypTPCTask::ExtrapolateToPoint(int trackid, TVector3 point, TVector3 &pos, 
 
   double tracklength = GetTrackLength(trackid);
   if(TMath::IsNaN(tracklength)) return false;
-  tracklen = 0.1*tracklength; //mm -> cm
   genfit::RKTrackRep *rep = (genfit::RKTrackRep *) GetTrackRep(trackid);
   genfit::MeasuredStateOnPlane fitState = GetFitState(trackid);
   if(!rep || !TrackCheck(trackid)) return false;
@@ -380,20 +379,58 @@ bool HypTPCTask::IsInsideTarget(int trackid) const{
   else return false;
 }
 
-bool HypTPCTask::ExtrapolateToHTOF(int trackid, TVector3 &pos, TVector3 &mom, double &tracklen, double &tof) const{
+bool HypTPCTask::ExtrapolateToHTOF(int trackid, int &candidates, int *ID, TVector3 *pos, TVector3 *mom, double *tracklen, double *tof) const{
+
+  for(int i=0;i<8;i++){
+    ID[i] = -1;
+    pos[i] = TVector3(qnan, qnan, qnan);
+    mom[i] = TVector3(qnan, qnan, qnan);
+    tracklen[i] = qnan;
+    tof[i] = qnan;
+  }
 
   bool flag = false;
+  candidates = 0;
   for(int i=0;i<8;i++){
-    const TVector3 center = 10*HTOFPlane[i] -> getO(); //cm -> mm
-    if(ExtrapolateToPlane(trackid, HTOFPlane[i], pos, mom, tracklen, tof)){
-      if(tracklen<0||tof<0) continue;
-      double xzdist = TMath::Sqrt((center.x()-pos.x())*(center.x()-pos.x()) +
-				  (center.z()-pos.z())*(center.z()-pos.z()));
-      if(TMath::Abs(pos.y()-12)>400. || xzdist>142) continue;
-      if(i==4 && TMath::Abs(pos.x())<71 && pos.y()<62 && pos.y()>-50) break; // window
-      else flag=true;
-      break;
+    const TVector3 center = 10.*HTOFPlane[i] -> getO(); //cm -> mm
+    TVector3 pos0; TVector3 mom0;
+    double tracklen0; double tof0;
+    if(ExtrapolateToPlane(trackid, HTOFPlane[i], pos0, mom0, tracklen0, tof0)){
+      TVector3 diff = pos0 - center;
+      double xzdist = TMath::Sqrt(diff.x()*diff.x() + diff.z()*diff.z());
+      TVector3 cross = center.Cross(diff);
+      if(TMath::Abs(pos0.y()-12)>400. || xzdist>142.) continue;
+      if(i==0){
+	if(TMath::Abs(pos0.x())<71. && pos0.y()<62. && pos0.y()>-50.) continue; //window
+	else if(cross.y()<0){
+	  if(TMath::Abs(xzdist) >= 71.) ID[candidates] = 1;
+	  else if(pos0.y() < 0.) ID[candidates] = 3;
+	  else ID[candidates] = 2;
+	}
+	else{
+	  if(TMath::Abs(xzdist) >= 71.) ID[candidates] = 6;
+	  else if(pos0.y() < 0.) ID[candidates] = 5;
+	  else ID[candidates] = 4;
+	}
+      }
+      else{
+	if(cross.y()<0){
+	  if(TMath::Abs(xzdist) >= 71.) ID[candidates] = 3 + 4*i;
+	  else ID[candidates] = 4 + 4*i;
+	}
+	else{
+	  if(TMath::Abs(xzdist) < 71.) ID[candidates] = 5 + 4*i;
+	  else ID[candidates] = 6 + 4*i;
+	}
+      }
+      pos[candidates] = pos0;
+      mom[candidates] = mom0;
+      tracklen[candidates] = tracklen0;
+      tof[candidates] = tof0;
+
+      candidates++;
     }
   }
+  if(candidates > 0) flag = true;
   return flag;
 }
