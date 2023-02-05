@@ -74,17 +74,19 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
 
   int nMeasurement = tp -> GetNHit();
   for(int i=0; i<nMeasurement; i++){
-    TPCLTrackHit *point = tp -> GetHit(i);
+    int order = tp -> GetOrder(i);
+    TPCLTrackHit *point = tp -> GetHit(order);
     new ((*_hitClusterArray)[i]) HypTPCHit(*point);
     trackCand.addHit(TPCDetID, i);
   }
 
   //GenFit Units : GeV/c, ns, cm, kGauss
   //K1.8Ana Units : GeV/c, ns, mm, T
-  const TVector3& res_vect = tp -> GetHit(0) -> GetResolutionVect();
-  TVector3 posSeed = tp -> GetHit(0) -> GetLocalCalPosHelix();
+  int start = tp -> GetOrder(start);
+  const TVector3& res_vect = tp -> GetHit(start) -> GetResolutionVect();
+  TVector3 posSeed = tp -> GetHit(start) -> GetLocalCalPosHelix();
   posSeed.SetMag(posSeed.Mag()/10.); //mm -> cm
-  TVector3 momSeed = tp -> GetHit(0) -> GetMomentumHelix(); //GeV/c
+  TVector3 momSeed = tp -> GetHit(start) -> GetMomentumHelix(); //GeV/c
 
   TMatrixDSym covSeed(6);
   covSeed.Zero();
