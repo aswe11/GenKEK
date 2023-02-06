@@ -82,7 +82,7 @@ void HypTPCTrack::AddHelixTrack(int pdg, TPCLocalTrackHelix *tp){
 
   //GenFit Units : GeV/c, ns, cm, kGauss
   //K1.8Ana Units : GeV/c, ns, mm, T
-  int start = tp -> GetOrder(start);
+  int start = tp -> GetOrder(0);
   const TVector3& res_vect = tp -> GetHit(start) -> GetResolutionVect();
   TVector3 posSeed = tp -> GetHit(start) -> GetLocalCalPosHelix();
   posSeed.SetMag(posSeed.Mag()/10.); //mm -> cm
